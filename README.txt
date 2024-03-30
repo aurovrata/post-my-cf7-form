@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: contact form 7, contact form 7 module, post, custom post, form to post, contact form 7 to post, contact form 7 extension
 Requires at least: 4.7
 Requires PHP: 5.6
-Tested up to: 6.4.2
+Tested up to: 6.4.3
 Stable tag: 6.0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -446,7 +446,16 @@ function change_meta_field_file_format( $file_format, $attachment_id, $post_id, 
 	return $file_format;
 }
 `
+29. Allow non-admin users to manage mapping options.
 
+Some of the mapping options (eg quick edit of mapped posts) are by default only accessible to admin users.  You can modify this using the following hook and returning a WordPress [capability](https://wordpress.org/documentation/article/roles-and-capabilities/) for your user's role:
+
+`
+add-filter('cf7_2_post_mapping_capability', 'c2p_options_allow_editors', 10,1);
+function c2p_options_allow_editors($capability){
+	return 'edit_others_posts'; //any editor role capability
+}
+`
 = Testing mapping of published forms =
 
 As of v5.7.0 you now have more control over the ability to save a submission from a form accessible to the public.  If you are developing your website and not concerned about who has access to it, then simply switch your form mapping to `live` (see screenshot #11).  However, if you are looking to map a form that is already accessible to the public on a live site, then you can test your mapping by leaving it the default `draft` mode and use the following filter to allow only certain users's submission to be saved to the mapped post,
