@@ -239,6 +239,8 @@ class Cf7_2_Post {
 		$this->loader->add_filter( 'wpcf7_skip_mail', $plugin_public, 'skip_cf7_mail' );
 		// instroduced a 'save button tag for forms.
 		$this->loader->add_action( 'wpcf7_init', $plugin_public, 'save_button_shortcode_handler' );
+		/** NB: @since 6.1.0 to fix dynamic select field values error validation introduced in CF7 v5.9 */
+		$this->loader->add_action( 'wpcf7_init', $plugin_public, 'reset_select_enum_rules', 100 );
 		// skip validation for saved forms.
 		$this->loader->add_filter( 'wpcf7_validate', $plugin_public, 'save_skips_wpcf7_validate', 100, 2 );
 		$this->loader->add_filter( 'wpcf7_validate_file', $plugin_public, 'save_skips_file_validation', 100, 2 );

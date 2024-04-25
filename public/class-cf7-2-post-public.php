@@ -281,6 +281,95 @@ class Cf7_2_Post_Public {
 		return $has_mapped_form;
 	}
 	/**
+	 * Remove and reset the CF7 select enum rule
+	 * Hooked on 'wpcf7_init'
+	 *
+	 * @since 6.1.0
+	 */
+	public function reset_select_enum_rules() {
+		remove_action( 'wpcf7_swv_create_schema', 'wpcf7_swv_add_select_enum_rules', 20, 2 );
+		add_action(
+			'wpcf7_swv_create_schema',
+			function( $schema, $form ) {
+				$tags   = $form->scan_form_tags( array( 'basetype' => array( 'select' ) ) );
+				$values = array_reduce(
+					$tags,
+					function ( $values, $tag ) {
+						if ( ! isset( $values[ $tag->name ] ) ) {
+							$values[ $tag->name ] = array();
+						}
+
+						$tag_values = array_merge(
+							(array) $tag->values,
+							(array) $tag->get_data_option()
+						);
+
+						if ( $tag->has_option( 'first_as_label' ) ) {
+							$tag_values = array_slice( $tag_values, 1 );
+						}
+
+						$values[ $tag->name ] = array_merge(
+							$values[ $tag->name ],
+							$tag_values
+						);
+
+						return $values;
+					},
+					array()
+				);
+				$factory = c2p_get_factory();
+				$form_id = $form->id();
+				if ( $factory->is_mapped( $form_id ) ) {
+					// $factory->get_post_mapper( $form_id );
+					// $form_values = $factory->get_form_values( $form_id );
+					$mapper = $factory->get_post_mapper( $form_id );
+					$mapped2tax = $mapper->get_post_map_taxonomy();
+					foreach ( $values as $field => $field_values ) {
+						if ( isset( $mapped2tax[ $field ] ) ) {
+							$txnmy = $mapped2tax[ $field ];
+							/** NB @since 5.1.1 track branch for taxonomy filter */
+							$branch = false;
+							$terms        = $factory->filter_taxonomy_query( $txnmy, $branch, $field, $mapper );
+							$field_values = wp_list_pluck( $terms, 'term_id' );
+						} else {
+							$field_values = array_map(
+								static function ( $value ) {
+									return html_entity_decode(
+										(string) $value,
+										ENT_QUOTES | ENT_HTML5,
+										'UTF-8'
+									);
+								},
+								$field_values
+							);
+						}
+						$field_values = array_filter(
+							array_unique( $field_values ),
+							static function ( $value ) {
+								return '' !== $value;
+							}
+						);
+
+						$schema->add_rule(
+							wpcf7_swv_create_rule(
+								'enum',
+								array(
+									'field' => $field,
+									'accept' => array_values( $field_values ),
+									'error' => $form->filter_message(
+										esc_html__( 'Undefined value was submitted through this field.', 'contact-form-7' )
+									),
+								)
+							)
+						);
+					}
+				}
+			},
+			20,
+			2
+		);
+	}
+	/**
 	 * Register a [save] shortcode with CF7.
 	 * Hooked  on 'wpcf7_init'
 	 * This function registers a callback function to expand the shortcode for the save button field.

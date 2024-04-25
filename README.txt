@@ -1,11 +1,11 @@
 === Post My CF7 Form ===
 Contributors: aurovrata
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TYFB6PQQB3HJC
-Tags: contact form 7, contact form 7 module, post, custom post, form to post, contact form 7 to post, contact form 7 extension
+Tags: contact form 7, contact form 7 extension, form to post, contact form 7 to post 
 Requires at least: 4.7
 Requires PHP: 5.6
 Tested up to: 6.4.3
-Stable tag: 6.0.7
+Stable tag: 6.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -446,17 +446,7 @@ function change_meta_field_file_format( $file_format, $attachment_id, $post_id, 
 	return $file_format;
 }
 `
-29. Allow non-admin users to manage mapping options.
-
-Some of the mapping options (eg quick edit of mapped posts) are by default only accessible to admin users.  You can modify this using the following hook and returning a WordPress [capability](https://wordpress.org/documentation/article/roles-and-capabilities/) for your user's role:
-
-`
-add-filter('cf7_2_post_mapping_capability', 'c2p_options_allow_editors', 10,1);
-function c2p_options_allow_editors($capability){
-	return 'edit_others_posts'; //any editor role capability
-}
-`
-= Testing mapping of published forms =
+= 29. Testing mapping of published forms =
 
 As of v5.7.0 you now have more control over the ability to save a submission from a form accessible to the public.  If you are developing your website and not concerned about who has access to it, then simply switch your form mapping to `live` (see screenshot #11).  However, if you are looking to map a form that is already accessible to the public on a live site, then you can test your mapping by leaving it the default `draft` mode and use the following filter to allow only certain users's submission to be saved to the mapped post,
 
@@ -469,7 +459,17 @@ function save_submitted_forms($allow, $cf7_key){
 	}
 	return $allow;
 }
+`
+== 30. Allow non-admin users to manage mapping options. ==
 
+Some of the mapping options (eg quick edit of mapped posts) are by default only accessible to admin users.  You can modify this using the following hook and returning a WordPress [capability](https://wordpress.org/documentation/article/roles-and-capabilities/)  for your user's role:
+
+`
+add-filter('cf7_2_post_mapping_capability', 'c2p_options_allow_editors', 10,1);
+function c2p_options_allow_editors($capability){
+	return 'edit_others_posts'; //any editor role capability
+}
+`
 == Screenshots ==
 
 1. 1.You can map your form fields to post fields and meta-fields.  You can save the mapping as a draft.  You can also change the custom post attributes that will be used to create the post. The default ones are `public, show_ui, show_in_menu, can_export, has_archive, exclude_from_search`.  For more information, please consult the custom post [documentation](https://codex.wordpress.org/Function_Reference/register_post_type).

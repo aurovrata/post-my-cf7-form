@@ -791,9 +791,7 @@ class CF72Post_Mapping_Factory {
 				if ( empty( $terms ) ) {
 					$terms = array();
 				}
-				foreach ( $terms as $term ) {
-					$terms_id[] = $term->term_id;
-				}
+				$terms_id = wp_list_pluck( $terms, 'term_id' );
 			} else {
 				$terms_id = apply_filters( 'cf7_2_post_filter_cf7_taxonomy_terms', $terms_id, $mapper->cf7_post_id, $form_field, $mapper->cf7_key );
 				if ( is_string( $terms_id ) ) {
@@ -926,6 +924,7 @@ class CF72Post_Mapping_Factory {
 
 	/**
 	 * Method to filter the taxonomy query for mapped taxonomy fields.
+	 * NB @since 6.1.0 - made public for access from public class of this plugin.
 	 *
 	 * @since 5.0.0
 	 * @param   String          $taxonomy  the taxonomy slug for which to return the list of terms.
@@ -934,7 +933,7 @@ class CF72Post_Mapping_Factory {
 	 * @param   C2P_Post_Mapper $mapper post mapping object.
 	 * @return Array|WP_Error a collectoin of WP_Term objects or an error.
 	 */
-	protected function filter_taxonomy_query( $taxonomy, $branch, $field, $mapper ) {
+	public function filter_taxonomy_query( $taxonomy, $branch, $field, $mapper ) {
 		$args = array( 'hide_empty' => 0 );
 		// for hierarchical taxonomy...
 		if ( is_array( $branch ) ) {
