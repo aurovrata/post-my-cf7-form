@@ -590,6 +590,8 @@ The following have contributed to bug fixes, documentation, and/or translations 
 As of now there is no special upgrade notes, simply  follow the normal plugin update process.
 
 == Change Log ==
+= 6.1.0 = 
+* Mapped select fields to taxonomy now conform to Schema-Woven Validation API.
 = 6.0.7 =
 * upgrade select2 plugin to v4.0.13
 = 6.0.6 =
