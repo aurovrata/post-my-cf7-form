@@ -1,11 +1,11 @@
 === Post My CF7 Form ===
 Contributors: aurovrata
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TYFB6PQQB3HJC
-Tags: contact form 7, contact form 7 extension, form to post, contact form 7 module 
+Tags: contact form 7, contact form 7 extension, form to post, save form submissions 
 Requires at least: 4.7
 Requires PHP: 5.6
 Tested up to: 6.5.2
-Stable tag: 6.1.0
+Stable tag: 6.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -590,6 +590,8 @@ The following have contributed to bug fixes, documentation, and/or translations 
 As of now there is no special upgrade notes, simply  follow the normal plugin update process.
 
 == Change Log ==
+= 6.1.1 =
+* included SWV validation fix for mapped checkbox/radio fields. 
 = 6.1.0 = 
 * Mapped select fields to taxonomy now conform to Schema-Woven Validation API.
 = 6.0.7 =

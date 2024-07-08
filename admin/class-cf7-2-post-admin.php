@@ -101,21 +101,24 @@ class Cf7_2_Post_Admin {
 		}
 
 		$screen = get_current_screen();
-		if ( 'toplevel_page_wpcf7' == $hook ||
+		if ( 'toplevel_page_wpcf7' === $hook ||
 		( WPCF7_ContactForm::post_type === $screen->post_type && 'post' === $screen->base ) ) {
-
+			$ff = '';
+			if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
+				$ff = '.min';
+			}
 			$plugin_dir = plugin_dir_url( __DIR__ );
 			wp_enqueue_style( 'cf7-2-post-panel-css', plugin_dir_url( __FILE__ ) . 'css/mapping-panel.css', $this->version, 'all' );
-			wp_enqueue_style( 'hybrid-select-css', $plugin_dir . 'assets/hybrid-html-dropdown/hybrid-dropdown.min.css', array(), $this->version, 'all' );
-			wp_enqueue_style( 'jquery-toggles-css', $plugin_dir . 'assets/jquery-toggles/css/toggles.css', array(), $this->version, 'all' );
-			wp_enqueue_style( 'jquery-toggles-light-css', $plugin_dir . 'assets/jquery-toggles/css/themes/toggles-light.css', array( 'jquery-toggles-css' ), $this->version, 'all' );
+			wp_enqueue_style( 'hybrid-select-css', "{$plugin_dir}assets/hybrid-html-dropdown/hybrid-dropdown{$ff}.css", array(), $this->version, 'all' );
+			wp_enqueue_style( 'jquery-toggles-css', "{$plugin_dir}assets/jquery-toggles/css/toggles.css", array(), $this->version, 'all' );
+			wp_enqueue_style( 'jquery-toggles-light-css', "{$plugin_dir}assets/jquery-toggles/css/themes/toggles-light.css", array( 'jquery-toggles-css' ), $this->version, 'all' );
 			wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/cf7-2-post-mapping.css', array( 'dashicons' ), $this->version, 'all' );
 		}
 		if ( WPCF7_ContactForm::post_type === $screen->post_type && 'edit' === $screen->base ) {
 			wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/cf7-table.css', null, $this->version, 'all' );
 		}//
 		$factory = c2p_get_factory();
-		if ( false != $factory->is_mapped_post_types( $screen->post_type, 'factory' ) ) {
+		if ( false !== $factory->is_mapped_post_types( $screen->post_type, 'factory' ) ) {
 			switch ( $screen->base ) {
 				case 'post':
 					wp_enqueue_style( 'cf72-custompost-css', plugin_dir_url( __FILE__ ) . 'css/cf72-custompost.css', array(), $this->version, 'all' );
@@ -171,7 +174,11 @@ class Cf7_2_Post_Admin {
 						'wpcf7_tags' => $tags,
 					)
 				);
-				wp_enqueue_script( 'hybrid-select', $plugin_dir . 'assets/hybrid-html-dropdown/hybrid-dropdown.min.js', null, $this->version, true );
+				$ff = '';
+				if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
+					$ff = '.min';
+				}
+				wp_enqueue_script( 'hybrid-select', "{$plugin_dir}assets/hybrid-html-dropdown/hybrid-dropdown{$ff}.js", null, $this->version, true );
 				break;
 			case ( WPCF7_ContactForm::post_type === $screen->post_type && 'edit' === $screen->base ): // form post table.
 				$plugin_dir = plugin_dir_url( __DIR__ );

@@ -59,9 +59,13 @@ class Cf7_2_Post_Public {
 	 */
 	public function register_scripts() {
 		$plugin_dir = plugin_dir_url( __DIR__ );
+		$ff         = '';
+		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
+			$ff = '.min';
+		}
 		wp_register_script( $this->plugin_name . '-save', $plugin_dir . 'public/js/cf7-2-post-save-draft.js', array( 'jquery' ), $this->version, true );
 		wp_register_script( $this->plugin_name . '-load', $plugin_dir . 'public/js/cf7-2-post-public.js', array( 'jquery' ), $this->version, true );
-		wp_register_script( 'hybriddd-js', $plugin_dir . 'assets/hybrid-html-dropdown/hybrid-dropdown.min.js', null, $this->version, true );
+		wp_register_script( 'hybriddd-js', "{$plugin_dir}assets/hybrid-html-dropdown/hybrid-dropdown{$ff}.js", null, $this->version, true );
 	}
 	/**
 	 * Register style
@@ -70,8 +74,12 @@ class Cf7_2_Post_Public {
 	 */
 	public function register_styles() {
 		$plugin_dir = plugin_dir_url( __DIR__ );
+		$ff         = '';
+		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
+			$ff = '.min';
+		}
 		wp_register_style( $this->plugin_name . '-css', $plugin_dir . 'public/css/cf7-2-post-styling.css', null, $this->version );
-		wp_register_style( 'hybriddd-style', $plugin_dir . 'assets/hybrid-html-dropdown/hybrid-dropdown.min.css', null, $this->version );
+		wp_register_style( 'hybriddd-style', "{$plugin_dir}assets/hybrid-html-dropdown/hybrid-dropdown{$ff}.css", null, $this->version );
 
 	}
 	/**
@@ -286,15 +294,27 @@ class Cf7_2_Post_Public {
 	 *
 	 * @since 6.1.0
 	 */
-	public function reset_select_enum_rules() {
+	public function reset_cf7_enum_rules() {
 		remove_action( 'wpcf7_swv_create_schema', 'wpcf7_swv_add_select_enum_rules', 20, 2 );
+		remove_action( 'wpcf7_swv_create_schema', 'wpcf7_swv_add_checkbox_enum_rules', 20, 2 );
 		add_action(
 			'wpcf7_swv_create_schema',
 			function( $schema, $form ) {
-				$tags   = $form->scan_form_tags( array( 'basetype' => array( 'select' ) ) );
-				$values = array_reduce(
+				$tags    = $form->scan_form_tags( array( 'basetype' => array( 'select', 'radio', 'checkbox' ) ) );
+				$values  = array_reduce(
 					$tags,
 					function ( $values, $tag ) {
+						switch ( $tag->basetype ) {
+							case 'radio':
+							case 'checkbox':
+								if ( $tag->has_option( 'free_text' ) ) {
+									$values[ $tag->name ] = 'free_text';
+								}
+								break;
+						}
+						if ( isset( $values[ $tag->name ] ) && ! is_array( $values[ $tag->name ] ) ) {
+							return $values;
+						}
 						if ( ! isset( $values[ $tag->name ] ) ) {
 							$values[ $tag->name ] = array();
 						}
@@ -312,7 +332,6 @@ class Cf7_2_Post_Public {
 							$values[ $tag->name ],
 							$tag_values
 						);
-
 						return $values;
 					},
 					array()
@@ -322,13 +341,13 @@ class Cf7_2_Post_Public {
 				if ( $factory->is_mapped( $form_id ) ) {
 					// $factory->get_post_mapper( $form_id );
 					// $form_values = $factory->get_form_values( $form_id );
-					$mapper = $factory->get_post_mapper( $form_id );
+					$mapper     = $factory->get_post_mapper( $form_id );
 					$mapped2tax = $mapper->get_post_map_taxonomy();
 					foreach ( $values as $field => $field_values ) {
 						if ( isset( $mapped2tax[ $field ] ) ) {
 							$txnmy = $mapped2tax[ $field ];
 							/** NB @since 5.1.1 track branch for taxonomy filter */
-							$branch = false;
+							$branch       = false;
 							$terms        = $factory->filter_taxonomy_query( $txnmy, $branch, $field, $mapper );
 							$field_values = wp_list_pluck( $terms, 'term_id' );
 						} else {
@@ -349,14 +368,13 @@ class Cf7_2_Post_Public {
 								return '' !== $value;
 							}
 						);
-
 						$schema->add_rule(
 							wpcf7_swv_create_rule(
 								'enum',
 								array(
-									'field' => $field,
+									'field'  => $field,
 									'accept' => array_values( $field_values ),
-									'error' => $form->filter_message(
+									'error'  => $form->filter_message(
 										esc_html__( 'Undefined value was submitted through this field.', 'contact-form-7' )
 									),
 								)
